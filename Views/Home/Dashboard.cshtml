@@ -1,0 +1,20 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+<input type="hidden" id="csrfToken" value="1234" />
+
+
+<script src="~/js/ajax.js" asp-append-version="true"></script>
+<script src="~/js/global.js" asp-append-version="true"></script>
+<script src="~/js/draggable.js" asp-append-version="true"></script>
+<script src="~/js/dynamic.js" asp-append-version="true"></script>
+<script src="~/js/dashboard.js" asp-append-version="true"></script>
+<script src="~/js/quizzes.js" asp-append-version="true"></script>
+<script src="~/js/quizScore.js" asp-append-version="true"></script>
+<script>
+    csrfToken.value = "@ViewBag.CSRF";
+    username = "@ViewBag.UserName";
+    userrole = "@ViewBag.UserRole";
+
+    startMe();
+</script>

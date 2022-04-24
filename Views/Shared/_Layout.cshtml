@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CMS Learning Center</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <img id="loading" style="z-index:3000;display:none; position:absolute;top:60px;left:45%;" src="~/images/loading.gif" />
+    <div id="divForm" style="display:none"></div>
+    <div class="confirmWindow" id="confirmWindow" style="z-index:2700; display:none"></div>
+    <input type="file" id="myfile" multiple="multiple" style="position:absolute; z-index:2500; display:none" onchange="myfile_onchange()" />
+    <div class="optWindow" id="optWindow"
+         ontoushstart="showOptsTouches(event, 'start')"
+         ontoushmove="showOptsTouches(event, 'end')"
+         ontoushend="showOptsTouches(event, 'end')"
+         style="z-index:2500; display:none">
+    </div>
+    <div class="optWindow" id="divFileViewer"
+         ontoushstart="showOptsTouches(event, 'start')"
+         ontoushmove="showOptsTouches(event, 'end')"
+         ontoushend="showOptsTouches(event, 'end')"
+         style="z-index:3500; display:none">
+        <div class="dim smhdr" id="divFileViewerhdr">
+            Quiz Material
+            <label class="liteblueButton floatRight" onclick="closeFileMaterial()">Close</label>
+        </div>
+        <iframe id="FileViewer" style="width:100%;height:480px"
+                title="File Material" frameborder=0 src="">
+        </iframe>
+    </div>
+    <div class="optWindow" id="divVideoViewer"
+         ontoushstart="showOptsTouches(event, 'start')"
+         ontoushmove="showOptsTouches(event, 'end')"
+         ontoushend="showOptsTouches(event, 'end')"
+         style="z-index:3000; display:none">
+        <div class="dim smhdr" id="divVideoViewerhdr">
+            Quiz Material
+            <label class="liteblueButton floatRight" onclick="closeMaterial()">Close</label>
+        </div>
+        <iframe id="VideoViewer" style="width:100%;height:480px"
+                allow="accelerometer; autoplay; clipboard - write; encrypted - media; gyroscope; picture -in -picture|"
+                title="YouTube video player" frameborder=0 allowfullscreen="data-com-scribehow-frame-id='055c5850-e40c-4c57-b7ba-3d9eea4807a6">
+        </iframe>
+    </div>
+
+    <header>
+        <div class="mainBanner">
+            CMS Learning Center
+            <label id="bannerOptions" class="floatRight padRight10"></label>
+        </div>
+    </header>
+    <div id="OuterPageContainer">
+        <div id="PageContainer">
+            @RenderBody()
+        </div>
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
