@@ -175,14 +175,23 @@ namespace CMS_LearningCenterMVC.Controllers
                     string value = item.ToString();
                     value = value.Length > 20 ? value.Remove(19) + "…" : value;
                     Console.Write(value.PadRight(20));
+                    System.Diagnostics.Debug.Write(value.PadRight(20));
                 }
                 Console.WriteLine();
+                System.Diagnostics.Debug.WriteLine("");
             }
 
             //LOOP THROUGH DATATABLE AND INSERT TO DATABASE
             int QuizID = 0;
+            List<string> qn = new List<string>();
             for (var i = 0; i < dataTable.Rows.Count; i++)
             {
+                if(!qn.Contains(dataTable.Rows[i]["QUIZ NAME"].ToString()))
+                {
+                    QuizID = 0;
+                }
+                qn.Add(dataTable.Rows[i]["QUIZ NAME"].ToString());
+               
                 var arr = ("quizname,question,answer1,answer2,answer3,answer4,correct,section,material,filename").Split(",");
                 var js = new JObject();
                 js.Add("ix", new JValue(i));
@@ -200,6 +209,7 @@ namespace CMS_LearningCenterMVC.Controllers
 
                 QuizID = (Int32)dat.Rows[0]["QuizID"];
             }
+            qn.Clear();
         }
 
         [Route("Quiz/UpdateMaterial")]
