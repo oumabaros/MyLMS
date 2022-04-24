@@ -175,23 +175,27 @@ namespace CMS_LearningCenterMVC.Controllers
                     string value = item.ToString();
                     value = value.Length > 20 ? value.Remove(19) + "…" : value;
                     Console.Write(value.PadRight(20));
-                    System.Diagnostics.Debug.Write(value.PadRight(20));
                 }
                 Console.WriteLine();
-                System.Diagnostics.Debug.WriteLine("");
             }
 
             //LOOP THROUGH DATATABLE AND INSERT TO DATABASE
             int QuizID = 0;
-            List<string> qn = new List<string>();
+            var qm = new List<KeyValuePair<string, int>>();
+
             for (var i = 0; i < dataTable.Rows.Count; i++)
             {
-                if(!qn.Contains(dataTable.Rows[i]["QUIZ NAME"].ToString()))
+                
+                if (!qm.Any(a =>a.Key == dataTable.Rows[i]["Quiz Name"].ToString()))
                 {
                     QuizID = 0;
                 }
-                qn.Add(dataTable.Rows[i]["QUIZ NAME"].ToString());
-               
+                else
+                {
+                   QuizID= qm.Where(n => n.Key == dataTable.Rows[i]["Quiz Name"].ToString())
+                          .OrderByDescending(i=>i.Value).Select(q => q.Value).FirstOrDefault();
+                }
+                                
                 var arr = ("quizname,question,answer1,answer2,answer3,answer4,correct,section,material,filename").Split(",");
                 var js = new JObject();
                 js.Add("ix", new JValue(i));
@@ -202,14 +206,15 @@ namespace CMS_LearningCenterMVC.Controllers
                 js.Add("quizid", new JValue(QuizID));
                 
                 var strjs = JsonConvert.SerializeObject(js);
-
+                
                 DataTable dat = DB.GetDB("exec LC_UploadQuiz @uid, @ix, @quizname, @question, " +
                     "@answer1, @answer2, @answer3, @answer4," +
                     "@correct, @section, @material,@filename, @quizid", UID, strjs);
 
                 QuizID = (Int32)dat.Rows[0]["QuizID"];
+                qm.Add(new KeyValuePair<string, int>(dataTable.Rows[i]["Quiz Name"].ToString(), QuizID));
             }
-            qn.Clear();
+            qm.Clear();
         }
 
         [Route("Quiz/UpdateMaterial")]
