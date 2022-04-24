@@ -40,7 +40,50 @@ namespace CMS_LearningCenterMVC.Controllers
             bool result = int.TryParse(val, out xVal);
             return result;
         }
+        [Route("Quiz/DeleteTestFile")]
+        public void DeleteTestFile(string fileName)
+        {
+            string rootFolder = Directory.GetCurrentDirectory();
+            string testPath = rootFolder + @"\wwwroot\materials\test\";
+            if (fileName != null)
+            {
+                if (System.IO.File.Exists(testPath + fileName))
+                {
+                    System.IO.File.Delete(testPath + fileName);
+                }
+            }
+        }
+        [Route("Quiz/TestFile")]
+        public async Task<string> TestFile(IFormFile fil)
+        {
+            string rootFolder = Directory.GetCurrentDirectory();
+            string testPath = rootFolder + @"\wwwroot\materials\test\";
+            string filename = "";
+            GemBox.Presentation.ComponentInfo.SetLicense("FREE-LIMITED-KEY");
+            if (!System.IO.Directory.Exists(testPath))
+            {
+                System.IO.Directory.CreateDirectory(testPath);
+            }
 
+            if (fil.Length > 0)
+            {
+                var extension = Path.GetExtension(fil.FileName);
+                if (System.IO.File.Exists(testPath + fil.FileName))
+                {
+                    System.IO.File.Delete(testPath + fil.FileName);
+                }
+
+                using (var stream = new FileStream(testPath + fil.FileName, FileMode.Create))
+                {
+                    await fil.CopyToAsync(stream);
+                }
+                var presentation = PresentationDocument.Load(Path.Combine(testPath, fil.FileName));
+                presentation.Save(testPath + "\\" + fil.FileName.Split('.').First() + ".pdf");
+                System.IO.File.Delete(testPath + fil.FileName.Split('.').First() + extension);
+                filename = fil.FileName.Split('.').First() + ".pdf";
+            }
+            return filename;
+        }
         [Route("Quiz/UploadQuiz")]
         public async void UploadQuiz(IFormFile fil,List<IFormFile> pptFiles)
         {

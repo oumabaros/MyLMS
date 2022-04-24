@@ -2,7 +2,7 @@
 var jsCurrentSection = [];
 var jsEditQuiz = [];
 var pptFileName = "";
-
+var testFileName = "";
 //***************************************************  CREATE QUIZ SECTION
 function CreateQuiz(main) {
     //main.appendChild(dyn("label","class=alink|onclick=window.open('CMS_LearningCenter_UploadTemplate.xlsx')|Get Upload Template"));
@@ -207,6 +207,15 @@ function closeMaterial() {
 
 function closeFileMaterial() {
     divFileViewer.style.display = "none";
+    if (testFileName.length > 0) {
+        var data = new FormData();
+        data.append('fileName', testFileName);
+        getData("Quiz/DeleteTestFile", data, function (vr) {
+            if (vr.length > 0) {
+                
+            }
+        });
+    }
 }
 
 function quizShowMaterial(Material, MaterialType) {
@@ -419,16 +428,31 @@ function EditMaterial(main, QuizID) {
                 "input|name=emSectionNo|type=hidden|style=width:450px|value=" + js[i]["SectionNo"],
                 "input|name=emFileName|type=file|id=file_UploadQuiz_"+i+"|style=display:none|onchange=file_UploadEditQuiz_Onchange('"+i+"')",
                 "label|class=padLeft10|",
+                "label|class=padLeft10 alink|onclick=quizShowMaterial(emURL_" + i + ".value, 'URL')|Test Link",
                 "label|class=padLeft10|",
-                "label|class=orangeButton|style=font-size:14px|onclick=file_UploadQuiz_"+i+".click()|Upload File",
-                "label|class=padLeft10|id=lbl_file_UploadQuiz_"+i,
-                "label|class=padLeft10 alink|onclick=quizShowMaterial(emURL_" + i + ".value, 'URL')|Test Link"
+                "label|class=orangeButton|style=font-size:14px|onclick=file_UploadQuiz_" + i + ".click()|Upload File",
+                "label|class=padLeft10|id=lbl_file_UploadQuiz_" + i,
+                "label|id=lblTest_"+i+"|style=display:none;|class=padLeft10 alink|onclick=testFileLink('" + i + "')|Test Link",
             ]);
             document.getElementById("emURL_" + i).value = js[i]["URL"];
         }
     }, true);
 }
 
+function testFileLink(i) {
+    var fil_ = document.getElementById('file_UploadQuiz_' + i);
+    var fil = fil_.files;
+    var data = new FormData();
+    data.append('fil', fil[0]);
+    getData("Quiz/TestFile", data, function (vr) {
+        if (vr.length > 0) {
+            testFileName = vr;
+            FileViewer.src = "materials/test/" + vr;
+            divFileViewer.style.display = "block";
+            dragElement(divFileViewer);
+        }
+    });
+}
 function file_UploadEditQuiz_Onchange(i) {
     var lbl = document.getElementById('lbl_file_UploadQuiz_' + i);
     var fil_ = document.getElementById('file_UploadQuiz_' + i);
@@ -458,13 +482,11 @@ function file_UploadEditQuiz_Onchange(i) {
     }
     lbl.style.color = (err) ? "red" : "black";
     lbl.innerHTML = filename;
-    soSubmit.innerHTML = "";
     if (err) {
         soSubmit.innerHTML = "";
-       
     }
     else {
-         section("soSubmit", ["label|class=liteblueButton|onclick=EditMaterialGO()|Submit"]);
+       document.getElementById('lblTest_' + i).style.display="inline";
     }
         
 }
