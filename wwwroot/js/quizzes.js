@@ -116,6 +116,7 @@ function CreateQuizGO() {
     }
     
     try {
+        //read and process excel file
         var reader = new FileReader();
         reader.readAsBinaryString(fil[0]);
         reader.onload = function (e) {
@@ -126,30 +127,31 @@ function CreateQuizGO() {
             
             var sheet = workbook.Sheets[workbook.SheetNames[0]];
             var json = XLSX.utils.sheet_to_json(sheet);
-            
+
+            //check if excel file has data
             if (json.length > 0) {
 
-                var err_count = 0;
-                for (var j = 0; j < json.length; j++) {
-                    console.log("ANS2: " + json[j]["Answer 2"]);
-                    if (json[j]["Quiz Name"] == undefined || json[j]["Question"] == undefined || json[j]["Answer 1"] == undefined || json[j]["Answer 2"] == undefined || json[j]["Correct Answer (1, 2, 3, 4)"] == undefined) {
-                        err_count++;
-                    }
-                }
+                var valid_column_names = ["Quiz Name", "Question", "Answer 1", "Answer 2", "Answer 3", "Answer 4", "Correct Answer (1, 2, 3, 4)", "StepByStep Section Name", "Material (Link / Explanation per Question or Section)", "FileName"];
+                var excel_column_names = Object.keys(json[0]);
+                var diff = excel_column_names.filter(x => !valid_column_names.includes(x));
 
-                if (err_count > 0) {
-                    xconfirm("At least one mandatory field is empty!");
+                //is excel file well-formatted
+                if (diff.length > 0) {
                     disableInputFilesOnError();
+                    xconfirm("Excel file might not be well-formatted. Download the template provided from the link provided in instruction 1.");
                 }
                 else {
-                    var valid_column_names = ["Quiz Name", "Question", "Answer 1", "Answer 2", "Answer 3", "Answer 4", "Correct Answer (1, 2, 3, 4)", "StepByStep Section Name", "Material (Link / Explanation per Question or Section)", "FileName"];
-                    var excel_column_names = Object.keys(json[0]);
-                    var diff = excel_column_names.filter(x => !valid_column_names.includes(x));
-
-                    //is excel file well-formatted
-                    if (diff.length > 0) {
+                     //check for mandatory fields
+                    var err_count = 0;
+                    for (var j = 0; j < json.length; j++) {
+                        if (json[j]["Quiz Name"] == undefined || json[j]["Question"] == undefined || json[j]["Answer 1"] == undefined || json[j]["Answer 2"] == undefined || json[j]["Correct Answer (1, 2, 3, 4)"] == undefined) {
+                            err_count++;
+                        }
+                    }
+                    //if a mandatory field is left empty...else..process file further
+                    if (err_count > 0) {
+                        xconfirm("At least one mandatory field is empty!");
                         disableInputFilesOnError();
-                        xconfirm("Excel file might not be well-formatted. Download the template provided from the link provided in instruction 1.");
                     }
                     else {
 
@@ -162,7 +164,7 @@ function CreateQuizGO() {
                         });
 
                         var difference = excel_file_names.filter(x => !ppt_file_names.includes(x));
-
+                        //check if files have been uploaded/correct file names if necessary
                         if (difference.length > 0) {
                             var file_s = difference.length > 1 ? "files" : "file";
                             var is_are = difference.length > 1 ? "are" : "is";
@@ -171,6 +173,7 @@ function CreateQuizGO() {
                             xconfirm("Either " + file_s + " [ " + difference.join(",") + " ] " + is_are + " mispelt in the Excel sheet or " + has_have + " not been selected!");
                         }
                         else {
+                            //upload excel and ppt files
                             var data = new FormData();
                             data.append("fil", fil[0]);
                             if (pptFiles.length > 0) {
