@@ -129,52 +129,66 @@ function CreateQuizGO() {
             
             if (json.length > 0) {
 
-                var valid_column_names = ["Quiz Name", "Question", "Answer 1", "Answer 2", "Correct Answer (1, 2, 3, 4)", "StepByStep Section Name", "Material (Link / Explanation per Question or Section)", "FileName"];
-                var excel_column_names = Object.keys(json[0]);
-                var diff = excel_column_names.filter(x => !valid_column_names.includes(x));
-                //is excel file well-formatted
-                if (diff.length > 0) {
+                var err_count = 0;
+                for (var j = 0; j < json.length; j++) {
+                    console.log("ANS2: " + json[j]["Answer 2"]);
+                    if (json[j]["Quiz Name"] == undefined || json[j]["Question"] == undefined || json[j]["Answer 1"] == undefined || json[j]["Answer 2"] == undefined || json[j]["Correct Answer (1, 2, 3, 4)"] == undefined) {
+                        err_count++;
+                    }
+                }
+
+                if (err_count > 0) {
+                    xconfirm("At least one mandatory field is empty!");
                     disableInputFilesOnError();
-                    xconfirm("Excel file might not be well-formatted. Download the template provided from the link provided in instruction 1.");
                 }
                 else {
+                    var valid_column_names = ["Quiz Name", "Question", "Answer 1", "Answer 2", "Answer 3", "Answer 4", "Correct Answer (1, 2, 3, 4)", "StepByStep Section Name", "Material (Link / Explanation per Question or Section)", "FileName"];
+                    var excel_column_names = Object.keys(json[0]);
+                    var diff = excel_column_names.filter(x => !valid_column_names.includes(x));
 
-                    for (var i = 0; i < json.length; i++) {
-                        excel_file_names.push(json[i]["FileName"]);
-                    }
-                    //filter null/empty files
-                    excel_file_names = excel_file_names.filter(function (el) {
-                        return el != null;
-                    });
-
-                    var difference = excel_file_names.filter(x => !ppt_file_names.includes(x));
-
-                    if (difference.length > 0) {
-                        var file_s = difference.length > 1 ? "files" : "file";
-                        var is_are = difference.length > 1 ? "are" : "is";
-                        var has_have = difference.length > 1 ? "have" : "has";
+                    //is excel file well-formatted
+                    if (diff.length > 0) {
                         disableInputFilesOnError();
-                        xconfirm("Either " + file_s + " [ " + difference.join(",") + " ] " + is_are + " mispelt in the Excel sheet or " + has_have + " not been selected!");
+                        xconfirm("Excel file might not be well-formatted. Download the template provided from the link provided in instruction 1.");
                     }
                     else {
-                        var data = new FormData();
-                        data.append("fil", fil[0]);
-                        if (pptFiles.length > 0) {
-                            for (var i = 0; i < pptFiles.length; i++) {
-                                data.append('pptFiles', pptFiles[i]);
-                            }
+
+                        for (var i = 0; i < json.length; i++) {
+                            excel_file_names.push(json[i]["FileName"]);
                         }
-                        getData("Quiz/UploadQuiz", data, function (vr) {
-                            loading.style.display = "none";
-                            setTimeout(function () { document.location.reload(); }, 1500);
+                        //filter null/empty files
+                        excel_file_names = excel_file_names.filter(function (el) {
+                            return el != null;
                         });
+
+                        var difference = excel_file_names.filter(x => !ppt_file_names.includes(x));
+
+                        if (difference.length > 0) {
+                            var file_s = difference.length > 1 ? "files" : "file";
+                            var is_are = difference.length > 1 ? "are" : "is";
+                            var has_have = difference.length > 1 ? "have" : "has";
+                            disableInputFilesOnError();
+                            xconfirm("Either " + file_s + " [ " + difference.join(",") + " ] " + is_are + " mispelt in the Excel sheet or " + has_have + " not been selected!");
+                        }
+                        else {
+                            var data = new FormData();
+                            data.append("fil", fil[0]);
+                            if (pptFiles.length > 0) {
+                                for (var i = 0; i < pptFiles.length; i++) {
+                                    data.append('pptFiles', pptFiles[i]);
+                                }
+                            }
+                            getData("Quiz/UploadQuiz", data, function (vr) {
+                                loading.style.display = "none";
+                                setTimeout(function () { document.location.reload(); }, 1500);
+                            });
+                        }
                     }
                 }
-
             }
             else {
                 disableInputFilesOnError();
-                xconfirm("Excel file might not be well-formatted. Download the template provided from the link provided in instruction 1.");
+                xconfirm("Excel file does not contain data.");
             }
         }
     }

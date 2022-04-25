@@ -251,22 +251,25 @@ namespace CMS_LearningCenterMVC.Controllers
                         System.IO.File.Delete(materialPath + iff.FileName.Split('.').First() + extension);
                     }
                 }
+                
             }
-           
-            for (var i = 0; i < table.Rows.Count; i++)
-            {
-                var arr = ("QuizID,SectionNo,URL,FileName").Split(",");
-                var js = new JObject();
-                for (var x = 0; x < table.Columns.Count; x++)
-                {
-                    js.Add(arr[x], new JValue(table.Rows[i][x].ToString()));
-                }
-                
-                var strjs = JsonConvert.SerializeObject(js);
 
-                DataTable dt = DB.GetDB("exec LC_GetUpdateMaterial @uid,@QuizID, @SectionNo,@URL, @FileName", UID, strjs);
-                results = (Int32)dt.Rows[0]["AffectedRecords"];
-                
+            if (dat!=null){
+                for (var i = 0; i < table.Rows.Count; i++)
+                {
+                    var arr = ("QuizID,SectionNo,URL,FileName").Split(",");
+                    var js = new JObject();
+                    for (var x = 0; x < table.Columns.Count; x++)
+                    {
+                        js.Add(arr[x], new JValue(table.Rows[i][x].ToString()));
+                    }
+
+                    var strjs = JsonConvert.SerializeObject(js);
+
+                    DataTable dt = DB.GetDB("exec LC_GetUpdateMaterial @uid,@QuizID, @SectionNo,@URL, @FileName", UID, strjs);
+                    results = (Int32)dt.Rows[0]["AffectedRecords"];
+
+                }
             }
            
             return results;
