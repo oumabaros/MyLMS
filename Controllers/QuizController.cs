@@ -87,14 +87,14 @@ namespace CMS_LearningCenterMVC.Controllers
         [Route("Quiz/UploadQuiz")]
         public async void UploadQuiz(IFormFile fil,List<IFormFile> pptFiles)
         {
-            int UID = xUID();
-
+            
+            GemBox.Presentation.ComponentInfo.SetLicense("FREE-LIMITED-KEY");
             GemBox.Spreadsheet.SpreadsheetInfo.SetLicense("EDWH-6KJO-D7SA-92EZ");
+            int UID = xUID();
             string rootFolder = Directory.GetCurrentDirectory();
             string subPath = rootFolder + @"\wwwroot\export\" + UID + @"\";
             string materialPath = rootFolder + @"\wwwroot\materials\";
-            GemBox.Presentation.ComponentInfo.SetLicense("FREE-LIMITED-KEY");
-
+            
             string FN = fil.FileName;
             //load power point files
             if (!System.IO.Directory.Exists(materialPath))
@@ -102,21 +102,25 @@ namespace CMS_LearningCenterMVC.Controllers
                 System.IO.Directory.CreateDirectory(materialPath);
             }
 
-            foreach (IFormFile iff in pptFiles)
+            if (pptFiles.Count > 0)
             {
-                var extension = Path.GetExtension(iff.FileName);
-                if (System.IO.File.Exists(materialPath + iff.FileName))
-                {
-                    System.IO.File.Delete(materialPath + iff.FileName);
-                }
 
-                using (var stream = new FileStream(materialPath + iff.FileName, FileMode.Create))
+                foreach (IFormFile iff in pptFiles)
                 {
-                    iff.CopyTo(stream);
+                    var extension = Path.GetExtension(iff.FileName);
+                    if (System.IO.File.Exists(materialPath + iff.FileName))
+                    {
+                        System.IO.File.Delete(materialPath + iff.FileName);
+                    }
+
+                    using (var stream = new FileStream(materialPath + iff.FileName, FileMode.Create))
+                    {
+                        iff.CopyTo(stream);
+                    }
+                    var presentation = PresentationDocument.Load(Path.Combine(materialPath, iff.FileName));
+                    presentation.Save(materialPath + "\\" + iff.FileName.Split('.').First() + ".pdf");
+                    System.IO.File.Delete(materialPath + iff.FileName.Split('.').First() + extension);
                 }
-                var presentation = PresentationDocument.Load(Path.Combine(materialPath, iff.FileName));
-                presentation.Save(materialPath + "\\" + iff.FileName.Split('.').First() + ".pdf");
-                System.IO.File.Delete(materialPath + iff.FileName.Split('.').First() + extension);
             }
 
             //load main excel file

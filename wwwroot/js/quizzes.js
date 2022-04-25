@@ -106,8 +106,49 @@ function file_UploadQuiz_Onchange() {
 function CreateQuizGO() {
     var fil = file_UploadQuiz.files;
     var pptFiles = document.getElementById('file_UploadFile').files;
+    var excel_file_names = [];
+    var ppt_file_names = [];
 
-    var data = new FormData();
+    if (pptFiles.length > 0) {
+        for (var i = 0; i < pptFiles.length; i++) {
+            ppt_file_names.push(pptFiles[i].name.substring(0, pptFiles[i].name.lastIndexOf('.')));
+        }
+    }
+    
+    try {
+        var reader = new FileReader();
+        reader.readAsBinaryString(fil[0]);
+        reader.onload = function (e) {
+
+            var data = e.target.result;
+            var workbook = XLSX.read(data, {
+                type: 'binary'
+            });
+            // read first sheet (identified by first of SheetNames)
+            var sheet = workbook.Sheets[workbook.SheetNames[0]];
+            var json = XLSX.utils.sheet_to_json(sheet);
+            if (json.length > 0) {
+                for (var i = 0; i < json.length; i++) {
+                    excel_file_names.push(json[i]["FileName"]);
+                }
+                excel_file_names = excel_file_names.filter(function (el) {
+                    return el != null;
+                });
+                console.log("EXC: " + JSON.stringify(excel_file_names));
+                console.log("PPT: " + JSON.stringify(ppt_file_names));
+                let difference = excel_file_names.filter(x => !ppt_file_names.includes(x));
+                console.log("DIFF: " + JSON.stringify(difference));
+
+                if (difference.length > 0) {
+                    xconfirm("Either files'" + difference.join(",")+"' are mispelled in the Excel sheet or have not been selected!");
+                }
+            }
+        }
+    } catch (e) {
+        console.error(e);
+    }
+
+    /*var data = new FormData();
     data.append("fil", fil[0]);
     if (pptFiles.length > 0) {
         for (var i = 0; i < pptFiles.length; i++) {
@@ -118,10 +159,35 @@ function CreateQuizGO() {
     getData("Quiz/UploadQuiz", data, function (vr) {
         loading.style.display = "none";
         setTimeout(function () { document.location.reload(); }, 1500);
-    });
+    });*/
 }
 
+function excelFileToJSON(file) {
+    var result = [];
+    try {
+        var reader = new FileReader();
+        reader.readAsBinaryString(file);
+        reader.onload = function (e) {
 
+            var data = e.target.result;
+            var workbook = XLSX.read(data, {
+                type: 'binary'
+            });
+            // read first sheet (identified by first of SheetNames)
+            var sheet = workbook.Sheets[workbook.SheetNames[0]];
+            var json = XLSX.utils.sheet_to_json(sheet);
+            if (json.length > 0) {
+                for (var i = 0; i < json.length; i++) {
+                    result.push(json[i]["FileName"]);
+                }
+                console.log(JSON.stringify(result));
+            }
+        }
+    } catch (e) {
+        console.error(e);
+    }
+   
+}
 //********************************* TAKE QUIZ
 function QuizSubmitAnswers() {
     var js = jsCurrentSection;
