@@ -144,7 +144,11 @@ function CreateQuizGO() {
                      //check for mandatory fields
                     var err_count = 0;
                     for (var j = 0; j < json.length; j++) {
-                        if (json[j]["Quiz Name"] == undefined || json[j]["Question"] == undefined || json[j]["Answer 1"] == undefined || json[j]["Answer 2"] == undefined || json[j]["Correct Answer (1, 2, 3, 4)"] == undefined) {
+                        if (isEmpty(json[j]["Quiz Name"])||
+                            isEmpty(json[j]["Question"]) ||
+                            isEmpty(json[j]["Answer 1"]) ||
+                            isEmpty(json[j]["Answer 2"]) ||
+                            isEmpty(json[j]["Correct Answer (1, 2, 3, 4)"])) {
                             err_count++;
                         }
                     }
@@ -200,6 +204,13 @@ function CreateQuizGO() {
     }
 }
 
+function isEmpty(value) {
+    return (
+        (value == null) ||
+        (value.hasOwnProperty('length') && value.length === 0) ||
+        (value.constructor === Object && Object.keys(value).length === 0)
+    )
+}
 function disableInputFilesOnError() {
     document.getElementById('file_UploadFile').value = null;
     document.getElementById('file_UploadQuiz').value = null;

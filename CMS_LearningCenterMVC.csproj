@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.95.3" />
     <PackageReference Include="GemBox.Presentation" Version="25.0.1251" />
     <PackageReference Include="GemBox.Spreadsheet" Version="43.0.0.1140" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />

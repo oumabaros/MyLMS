@@ -2,23 +2,31 @@
 
 function AdminPanel(main) {
     section("optMain", [
-        "label|class=padLeft10 alink|onclick=showOpts('Report By User','Report By User','Admin', true)|Report By User",
+        "label|class=padLeft10 alink|onclick=ReportByUser()|Report By User",
         "p",
-        "label|class=padLeft10 alink|onclick=showOpts('Report By Exam','Report By Exam','Admin', true)|Report By Exam",
-        "p",
-
+        "label|class=padLeft10 alink|onclick=ReportByExam()|Report By Exam",
     ])
 }
 
-function ReportByExam(main, Title) {
-    section("soSubmit", ["label|class=padLeft10|"]);
-    section("optMain", ["div|id=div_exam|class=smhdr dim|"]);
-    section("div_exam", ["label|Exams"]);
-    section("optMain", ["div|id=div_exams|"]);
+function closeReport() {
+    divReportViewer.style.display = "none";
+}
+function ReportByExam() {
+    divReportViewer.style.display = "block";
+    dragElement(divReportViewer);
 
+    section("soSubmit", ["label|class=padLeft10|"]);
+    document.getElementById("div_report").innerHTML = "";
+    section("div_report", ["div|id=div_exam|class=smhdr dim|"]);
+    section("div_report", ["div|id=div_exams|"]);
+       
     var data = newFormData("GetQuizzes", {});
     getData(null, data, function (js) {
         if (js.length > 0) {
+            section("div_exams", [
+                "label|class=padLeft10 orangeButton|style=margin-left:10px;|onclick=window.open('Quiz/ExportByExam')|Export To Excel",
+                "p",
+            ])
             for (var i = 0; i < js.length; i++) {
                 section("div_exams", ["label|class=padRight10|icon=downArrow.png|", "label|onclick=showExamContent('" + js[i]["QuizID"] + "')|style=cursor:pointer|", "label|style=cursor:pointer|onclick=showExamContent('" + js[i]["QuizID"] + "')|" + js[i]["QuizName"]]);
                 section("div_exams", ["br|"]);
@@ -99,15 +107,21 @@ function showExamUserContent(uid, quizid) {
     }
 }
 
-function ReportByUser(main, Title) {
+function ReportByUser() {
+    divReportViewer.style.display = "block";
+    dragElement(divReportViewer);
     section("soSubmit", ["label|class=padLeft10|"]);
-
-    section("optMain", ["div|id=div_user|class=smhdr dim|"]);
-    section("div_user", ["label|Users"]);
-    section("optMain", ["div|id=div_users|"]);
+    document.getElementById("div_report").innerHTML = "";
+    section("div_report", ["div|id=div_user|class=smhdr dim|"]);
+    section("div_report", ["div|id=div_users|"]);
+   
     var data = newFormData("GetUsers", {});
     getData(null, data, function (js) {
         if (js.length > 0) {
+            section("div_users", [
+                "label|class=padLeft10 orangeButton|style=margin-left:10px;|onclick=window.open('Quiz/ExportByUser')|Export To Excel",
+                "p",
+            ])
             for (var i = 0; i < js.length; i++) {
                 section("div_users", ["label|class=padRight10|icon=downArrow.png|", "label|onclick=showUserContent('" + js[i]["UID"] + "')|style=cursor:pointer|", "label|style=cursor:pointer|onclick=showUserContent('" + js[i]["UID"] + "')|" + js[i]["UserName"]]);
                 section("div_users", ["br|"]);
@@ -138,7 +152,13 @@ function showUserContent(uid) {
         document.getElementById("div_users-" + uid).style.display = 'block';
     }
 }
-
+function ExportScores(QuizID) {
+    var data = new FormData();
+    data.append('QuizID', QuizID);
+    getData("Quiz/ExportMyScore", data, function (vr) {
+        
+    });
+}
 
 function MyScores_ShowTryContent(TryID) {
     var tbl = document.getElementById("tbl_Try_" + TryID);
@@ -152,6 +172,10 @@ function MyScores(main, QuizID) {
         if (js.length == 0) {
             section("optMain", ["div|class=pad10|You have not taken any quizzes yet."]);
         } else {
+            section("optMain", ["div|id=div_export"]);
+            var mn = document.getElementById("div_export");
+            mn.innerHTML="<label class='orangeButton' style='font-size:14px;' onclick=window.open('Quiz/ExportMyScore?QuizID=" + QuizID + "')> Export To Excel</label> ";
+
             var tmpTryID = "";
             for (var i = 0; i < js.length; i++) {
                 var QuizName = js[i]["QuizName"];
@@ -162,6 +186,7 @@ function MyScores(main, QuizID) {
                 var QuizStatus = js[i]["QuizStatus"];
 
                 if (tmpTryID != TryID) {
+                    
                     section("optMain", [
                         "div|id=div_try_" + TryID +
                         "|class=smhdr dim|style=cursor:pointer;margin-bottom:0px;|" +

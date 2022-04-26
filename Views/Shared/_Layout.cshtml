@@ -31,6 +31,16 @@
                 title="File Material" frameborder=0 src="">
         </iframe>
     </div>
+    <div class="optWindow" id="divReportViewer"
+         ontoushstart="showOptsTouches(event, 'start')"
+         ontoushmove="showOptsTouches(event, 'end')"
+         ontoushend="showOptsTouches(event, 'end')"
+         style="z-index:4000; display:none;overflow-y:scroll;">
+        <div class="dim smhdr" id="divReportViewerhdr">
+            <label class="liteblueButton floatRight" onclick="closeReport()">Close</label>
+        </div>
+        <div id="div_report" ></div>
+    </div>
     <div class="optWindow" id="divVideoViewer"
          ontoushstart="showOptsTouches(event, 'start')"
          ontoushmove="showOptsTouches(event, 'end')"
