@@ -44,7 +44,101 @@ namespace CMS_LearningCenterMVC.Controllers
         [Route("Quiz/ExportByUser")]
         public void ExportByUser()
         {
+            int UID = xUID();
+            var js = new JObject();
+            var strjs = JsonConvert.SerializeObject(js);
+            DataTable dt_exam = DB.GetDB("exec LC_GetQuizzes @uid", UID, strjs);
+            DataTable dt_users = DB.GetDB("exec LC_GetUsers @uid", UID, strjs);
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("Quiz Scores By User");
+                var currentRow = 1;
+                foreach (DataRow dr_users in dt_users.Rows)
+                {
+                    currentRow++;
+                    var UserName = dr_users["UserName"].ToString();
+                    int u_id = (Int32)dr_users["UID"];
 
+                    worksheet.Cell(currentRow, 1).Value = UserName;
+                    worksheet.Columns("A").AdjustToContents();
+                    worksheet.Cell(currentRow, 1).Style.Fill.BackgroundColor = XLColor.Orange;
+                    worksheet.Cell(currentRow, 1).Style.Font.FontColor = XLColor.White;
+                    worksheet.Cell(currentRow, 1).Style.Font.SetBold(true);
+                    currentRow++;
+
+                    foreach (DataRow dr_exam in dt_exam.Rows)
+                    {
+                        currentRow++;
+                        var QuizName = dr_exam["QuizName"].ToString();
+                        int QuizID = (Int32)dr_exam["QuizID"];
+                        worksheet.Cell(currentRow, 1).Value = QuizName;
+                        worksheet.Columns("A").AdjustToContents();
+                        worksheet.Cell(currentRow, 1).Style.Fill.BackgroundColor = XLColor.SteelBlue;
+                        worksheet.Cell(currentRow, 1).Style.Font.FontColor = XLColor.White;
+                        worksheet.Cell(currentRow, 1).Style.Font.SetBold(true);
+
+                        var js_exam = new JObject();
+                        js_exam.Add("quizid", new JValue(QuizID));
+                        js_exam.Add("xUID", new JValue(u_id));
+                        var strjs_exam = JsonConvert.SerializeObject(js_exam);
+
+                        DataTable dt = DB.GetDB("exec LC_GetTries @uid,@xUID,@QuizID", u_id, strjs_exam);
+                        var tmpTryID = "";
+
+                        foreach (DataRow dr in dt.Rows)
+                        {
+                            QuizName = dr["QuizName"].ToString();
+                            var SectionName = dr["SectionName"].ToString();
+                            var TryID = dr["TryID"].ToString();
+                            var TryDate = dr["TryDate"].ToString();
+                            var SectionStatus = dr["SectionStatus"].ToString();
+                            var QuizStatus = dr["QuizStatus"].ToString();
+
+                            if (tmpTryID != TryID)
+                            {
+                                currentRow++;
+                                worksheet.Cell(currentRow, 1).Value = TryDate + "(" + QuizStatus + ")";
+                                worksheet.Columns("A").AdjustToContents();
+                                worksheet.Cell(currentRow, 1).Style.Fill.BackgroundColor = XLColor.SteelBlue;
+                                worksheet.Cell(currentRow, 1).Style.Font.FontColor = XLColor.White;
+                                worksheet.Cell(currentRow, 1).Style.Font.SetBold(true);
+
+                                currentRow++;
+                                worksheet.Cell(currentRow, 1).Value = "Section";
+                                worksheet.Cell(currentRow, 1).Style.Fill.BackgroundColor = XLColor.SteelBlue;
+                                worksheet.Cell(currentRow, 1).Style.Font.FontColor = XLColor.White;
+                                worksheet.Cell(currentRow, 1).Style.Font.SetBold(true);
+                                worksheet.Cell(currentRow, 2).Value = "Date Taken";
+                                worksheet.Columns("B").AdjustToContents();
+                                worksheet.Cell(currentRow, 2).Style.Fill.BackgroundColor = XLColor.SteelBlue;
+                                worksheet.Cell(currentRow, 2).Style.Font.FontColor = XLColor.White;
+                                worksheet.Cell(currentRow, 2).Style.Font.SetBold(true);
+                                worksheet.Cell(currentRow, 3).Value = "Status";
+                                worksheet.Columns("C").AdjustToContents();
+                                worksheet.Cell(currentRow, 3).Style.Fill.BackgroundColor = XLColor.SteelBlue;
+                                worksheet.Cell(currentRow, 3).Style.Font.FontColor = XLColor.White;
+                                worksheet.Cell(currentRow, 3).Style.Font.SetBold(true);
+                            }
+
+                            currentRow++;
+                            worksheet.Cell(currentRow, 1).Value = SectionName;
+                            worksheet.Cell(currentRow, 2).Value = TryDate;
+                            worksheet.Cell(currentRow, 3).Value = SectionStatus;
+                            tmpTryID = TryID;
+                        }
+                        currentRow++;
+                    }
+                }
+
+                using var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                var content = stream.ToArray();
+                Response.Clear();
+                Response.Headers.Add("content-disposition", "attachment;filename=Quiz Scores By User.xls");
+                Response.ContentType = "application/xls";
+                Response.Body.WriteAsync(content);
+                Response.Body.Flush();
+            }
         }
 
         [Route("Quiz/ExportByExam")]
