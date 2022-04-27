@@ -301,7 +301,7 @@ namespace CMS_LearningCenterMVC.Controllers
                 }
                 worksheet.Cell(1, 1).Value = QuizName;
                 worksheet.Columns("A").AdjustToContents();
-                worksheet.Cell(1, 1).Style.Fill.BackgroundColor = XLColor.SteelBlue;
+                worksheet.Cell(1, 1).Style.Fill.BackgroundColor = XLColor.Orange;
                 worksheet.Cell(1, 1).Style.Font.FontColor = XLColor.White;
                 worksheet.Cell(1, 1).Style.Font.SetBold(true);
 

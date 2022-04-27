@@ -270,6 +270,7 @@ function QuizSubmitAnswers() {
             }
         }, true);
     });
+    pptFileName = "";
 }
 
 function QuizAnswers_Onchange() {
@@ -293,9 +294,11 @@ function QuizAnswers_Onchange() {
     }
 }
 function closeMaterial() {
+   
     VideoViewer.src = "";
     divVideoViewer.style.display = "none";
     if (pptFileName) {
+        
         FileViewer.src = "materials/" + pptFileName + ".pdf";
         divFileViewer.style.display = "block";
         dragElement(divFileViewer);
@@ -315,7 +318,7 @@ function closeFileMaterial() {
     }
 }
 
-function quizShowMaterial(Material, MaterialType) {
+function quizShowMaterial(Material, MaterialType,pptFileName) {
     dragElement(divVideoViewer);
 
     if (MaterialType == "URL") {
@@ -337,12 +340,16 @@ function quizShowMaterial(Material, MaterialType) {
         divVideoViewer.style.display = "";
     }
     else {
+        VideoViewer.src = "";
+        divVideoViewer.style.display = "none";
         if (pptFileName) {
             FileViewer.src = "materials/" + pptFileName + ".pdf";
             divFileViewer.style.display = "block";
             dragElement(divFileViewer);
         }
     }
+    pptFileName = pptFileName;
+    
 }
 
 function Quiz(main, dat) {
@@ -365,10 +372,10 @@ function Quiz(main, dat) {
             pptFileName = file_names[0]["Files"];
         }
         if (jsMaterial.length > 0) {
-            quizShowMaterial(js[0]["Material"], js[0]["MaterialType"]);
+            quizShowMaterial(js[0]["Material"], js[0]["MaterialType"],pptFileName);
             soSubmit.appendChild(
                 dyn("label",
-                    "class=liteblueButton|onclick=quizShowMaterial('" + js[0]["Material"] + "','" + js[0]["MaterialType"] + "')|" +
+                    "class=liteblueButton|onclick=quizShowMaterial('" + js[0]["Material"] + "','" + js[0]["MaterialType"] + "','" + pptFileName+"') | " +
                     "Show Material"
                 )
             );
