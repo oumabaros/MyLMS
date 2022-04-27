@@ -169,19 +169,19 @@ namespace CMS_LearningCenterMVC.Controllers
                     foreach (DataRow dr_users in dt_users.Rows)
                     {
                         var UserName = dr_users["UserName"].ToString();
-                        int u_id =(Int32) dr_users["UID"];
+                        int u_id = (Int32)dr_users["UID"];
 
                         worksheet.Cell(currentRow, 1).Value = UserName;
                         worksheet.Columns("A").AdjustToContents();
                         worksheet.Cell(currentRow, 1).Style.Fill.BackgroundColor = XLColor.SteelBlue;
                         worksheet.Cell(currentRow, 1).Style.Font.FontColor = XLColor.White;
                         worksheet.Cell(currentRow, 1).Style.Font.SetBold(true);
-                        
+
                         var js_exam = new JObject();
                         js_exam.Add("quizid", new JValue(QuizID));
                         js_exam.Add("xUID", new JValue(u_id));
                         var strjs_exam = JsonConvert.SerializeObject(js_exam);
-                        
+
                         DataTable dt = DB.GetDB("exec LC_GetTries @uid,@xUID,@QuizID", u_id, strjs_exam);
                         var tmpTryID = "";
 
@@ -256,7 +256,7 @@ namespace CMS_LearningCenterMVC.Controllers
                 var tmpTryID = "";
                 var worksheet = workbook.Worksheets.Add("Quiz Scores");
                 var currentRow = 1;
-                
+
                 foreach (DataRow dr in dt.Rows)
                 {
                     QuizName = dr["QuizName"].ToString();
@@ -265,7 +265,7 @@ namespace CMS_LearningCenterMVC.Controllers
                     var TryDate = dr["TryDate"].ToString();
                     var SectionStatus = dr["SectionStatus"].ToString();
                     var QuizStatus = dr["QuizStatus"].ToString();
-                                        
+
                     if (tmpTryID != TryID)
                     {
                         currentRow++;
@@ -309,12 +309,12 @@ namespace CMS_LearningCenterMVC.Controllers
                 workbook.SaveAs(stream);
                 var content = stream.ToArray();
                 Response.Clear();
-                Response.Headers.Add("content-disposition", "attachment;filename="+QuizName+".xls");
+                Response.Headers.Add("content-disposition", "attachment;filename=" + QuizName + ".xls");
                 Response.ContentType = "application/xls";
                 Response.Body.WriteAsync(content);
                 Response.Body.Flush();
             }
-            
+
         }
         [Route("Quiz/DeleteTestFile")]
         public void DeleteTestFile(string fileName)
@@ -361,16 +361,16 @@ namespace CMS_LearningCenterMVC.Controllers
             return filename;
         }
         [Route("Quiz/UploadQuiz")]
-        public async void UploadQuiz(IFormFile fil,List<IFormFile> pptFiles)
+        public async void UploadQuiz(IFormFile fil, List<IFormFile> pptFiles)
         {
-            
+
             GemBox.Presentation.ComponentInfo.SetLicense("FREE-LIMITED-KEY");
             GemBox.Spreadsheet.SpreadsheetInfo.SetLicense("EDWH-6KJO-D7SA-92EZ");
             int UID = xUID();
             string rootFolder = Directory.GetCurrentDirectory();
             string subPath = rootFolder + @"\wwwroot\export\" + UID + @"\";
             string materialPath = rootFolder + @"\wwwroot\materials\";
-            
+
             string FN = fil.FileName;
             //load power point files
             if (!System.IO.Directory.Exists(materialPath))
@@ -465,17 +465,17 @@ namespace CMS_LearningCenterMVC.Controllers
 
             for (var i = 0; i < dataTable.Rows.Count; i++)
             {
-                
-                if (!qm.Any(a =>a.Key == dataTable.Rows[i]["Quiz Name"].ToString()))
+
+                if (!qm.Any(a => a.Key == dataTable.Rows[i]["Quiz Name"].ToString()))
                 {
                     QuizID = 0;
                 }
                 else
                 {
-                   QuizID= qm.Where(n => n.Key == dataTable.Rows[i]["Quiz Name"].ToString())
-                          .OrderByDescending(i=>i.Value).Select(q => q.Value).FirstOrDefault();
+                    QuizID = qm.Where(n => n.Key == dataTable.Rows[i]["Quiz Name"].ToString())
+                           .OrderByDescending(i => i.Value).Select(q => q.Value).FirstOrDefault();
                 }
-                                
+
                 var arr = ("quizname,question,answer1,answer2,answer3,answer4,correct,section,material,filename").Split(",");
                 var js = new JObject();
                 js.Add("ix", new JValue(i));
@@ -484,9 +484,9 @@ namespace CMS_LearningCenterMVC.Controllers
                     js.Add(arr[x], new JValue(dataTable.Rows[i][x].ToString()));
                 }
                 js.Add("quizid", new JValue(QuizID));
-                
+
                 var strjs = JsonConvert.SerializeObject(js);
-                
+
                 DataTable dat = DB.GetDB("exec LC_UploadQuiz @uid, @ix, @quizname, @question, " +
                     "@answer1, @answer2, @answer3, @answer4," +
                     "@correct, @section, @material,@filename, @quizid", UID, strjs);
@@ -506,14 +506,14 @@ namespace CMS_LearningCenterMVC.Controllers
             int results = 0;
             var table = JsonConvert.DeserializeObject<DataTable>(dat);
             GemBox.Presentation.ComponentInfo.SetLicense("FREE-LIMITED-KEY");
-            
+
             if (!System.IO.Directory.Exists(materialPath))
             {
                 System.IO.Directory.CreateDirectory(materialPath);
             }
             if (fil.Count > 0)
             {
-                foreach(IFormFile iff in fil)
+                foreach (IFormFile iff in fil)
                 {
                     if (iff != null)
                     {
@@ -527,10 +527,11 @@ namespace CMS_LearningCenterMVC.Controllers
                         System.IO.File.Delete(materialPath + iff.FileName.Split('.').First() + extension);
                     }
                 }
-                
+
             }
 
-            if (dat!=null){
+            if (dat != null)
+            {
                 for (var i = 0; i < table.Rows.Count; i++)
                 {
                     var arr = ("QuizID,SectionNo,URL,FileName").Split(",");
@@ -547,7 +548,7 @@ namespace CMS_LearningCenterMVC.Controllers
 
                 }
             }
-           
+
             return results;
         }
     }
