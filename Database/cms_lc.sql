@@ -1,4 +1,4 @@
-USE [CMS_LC]
+USE [CMS]
 GO
 /****** Object:  UserDefinedFunction [dbo].[selectConcat]    Script Date: 04/05/2022 19:09:28 ******/
 SET ANSI_NULLS ON

@@ -12,7 +12,7 @@ namespace CMS_LearningCenterMVC
 {
     public class DB
     {
-        public static string connstr = @"Server=CFCA\SQLEXPRESS2019;Database=CMS_LC;Trusted_Connection=True;MultipleActiveResultSets=true;";
+        public static string connstr = @"Server=CFCA\SQLEXPRESS2019;Database=CMS;Trusted_Connection=True;MultipleActiveResultSets=true;";
 
 
         public static DataTable GetCMS()
